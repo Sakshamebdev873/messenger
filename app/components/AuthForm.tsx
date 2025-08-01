@@ -14,6 +14,7 @@ const AuthForm = () => {
   const toggleVariant = useCallback(() => {
     if (variant === "LOGIN") {
       setVariant("REGISTER");
+
     } else {
       setVariant("LOGIN");
     }
@@ -32,7 +33,7 @@ const AuthForm = () => {
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     setIsLoading(true);
     if (variant === "REGISTER") {
-      axios
+      axios.post('/api/register',data)
     }
     if (variant === "LOGIN") {
     }
