@@ -1,24 +1,35 @@
 "use client";
-import axios from 'axios'
-import React, { useCallback, useState } from "react";
+import axios from "axios";
+import React, { useCallback, useEffect, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import Input from "./Inputs/Input";
 import Button from "./Button";
 import AuthSocialButton from "./AuthSocialButton";
 import { BsGithub } from "react-icons/bs";
 import { BsGoogle } from "react-icons/bs";
+import toast from "react-hot-toast";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+// import { useRouter } from "next/";
 type Variant = "LOGIN" | "REGISTER";
 const AuthForm = () => {
+  const session = useSession()
+  const router = useRouter()
   const [variant, setVariant] = useState<Variant>("LOGIN");
   const [isLoading, setIsLoading] = useState(false);
   const toggleVariant = useCallback(() => {
     if (variant === "LOGIN") {
       setVariant("REGISTER");
-
     } else {
       setVariant("LOGIN");
     }
   }, [variant]);
+  useEffect(() =>{
+if(session?.status === 'authenticated' ){
+ router.push('/users')
+  
+}
+  },[session?.status,router])
   const {
     register,
     handleSubmit,
@@ -33,13 +44,41 @@ const AuthForm = () => {
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     setIsLoading(true);
     if (variant === "REGISTER") {
-      axios.post('/api/register',data)
+      axios
+        .post("/api/register", data)
+        .then(()=> signIn('credentials',data))
+        .catch(() => toast.error("Something went wrong"))
+        .finally(() => setIsLoading(false));
     }
     if (variant === "LOGIN") {
+      signIn("credentials", {
+        ...data,
+        redirect: false,
+      }).then((callback) => {
+        if (callback?.error) {
+          toast.error("Invalid credentials");
+        }
+        if (callback?.ok && !callback?.error) {
+          toast.success("Logged In!!");
+          router.push('/users')
+        }
+      });
     }
   };
   const socialAction = (action: string) => {
     setIsLoading(true);
+    signIn(action, { redirect: false })
+      .then((callback) => {
+        if (callback?.error) {
+          toast.error("Invalid credentials");
+        }
+        if (callback?.ok && !callback?.error) {
+          toast.success("Logged In!");
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
   return (
     <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -100,7 +139,7 @@ const AuthForm = () => {
         <div className="mt-6 flex gap-2">
           <AuthSocialButton
             Icon={BsGoogle}
-            onClick={() => socialAction("github")}
+            onClick={() => socialAction("google")}
           />
         </div>
         <div className="flex gap-2 justify-center text-sm mt-6 px-2 text-gray-500 ">
