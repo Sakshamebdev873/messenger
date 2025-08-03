@@ -18,6 +18,7 @@ const ConversationList : React.FC<ConversationListProps> = ({initalItems}) => {
   const [items,setItems] = useState(initalItems)
   const router = useRouter()
   const {conversationId,isOpen} = useConversation()
+console.log(items);
 
     return (
     <aside className={clsx(`fixed inset-y-0 pb-20 lg:pb-0 lg:left-20 lg:w-80 lg:block overflow-y-auto border-r border-gray-200 `,isOpen ? 'hidden' : 'block w-full left-0')} >
@@ -30,9 +31,13 @@ const ConversationList : React.FC<ConversationListProps> = ({initalItems}) => {
     <MdOutlineGroupAdd/>
 </div>
 </div>
-{items.map((item) => {
-<ConversationBox key={item.id} data={item} selected={conversationId === item.id}  />
-})}
+{items.map((item) => (
+  <ConversationBox 
+    key={item.id} 
+    data={item} 
+    selected={conversationId === item.id}  
+  />
+))}
 </div>
     </aside>
     )
