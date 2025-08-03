@@ -1,12 +1,14 @@
 import React from "react"
 import DesktopSidebar from "./DesktopSidebar"
+import getCurrentUser from "../actions/getCurrentUser"
 
-export function Sidebar ({children } : {
+export async  function Sidebar ({children } : {
 children : React.ReactNode
 }){
+  const currentUser = await getCurrentUser()
   return (
     <div className="h-full" >
-      <DesktopSidebar/>
+      <DesktopSidebar currentUser={currentUser} />
 <main className="lg:pl-20 h-full" >
   {children}
 </main>
